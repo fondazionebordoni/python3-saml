@@ -90,8 +90,7 @@ class OneLogin_Saml2_Authn_Request(object):
 
             nameid_policy_str = """
     <samlp:NameIDPolicy
-        Format="%s"
-        AllowCreate="true" />""" % name_id_policy_format
+        Format="%s" />""" % name_id_policy_format
 
         requested_authn_context_str = ''
         if security['requestedAuthnContext'] is not False:

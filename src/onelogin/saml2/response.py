@@ -313,7 +313,7 @@ class OneLogin_Saml2_Response(object):
                 document_check_assertion = self.decrypted_document if self.encrypted else self.document
                 if has_signed_assertion and not OneLogin_Saml2_Utils.validate_sign(document_check_assertion, cert, fingerprint, fingerprintalg, xpath=OneLogin_Saml2_Utils.ASSERTION_SIGNATURE_XPATH, multicerts=multicerts, raise_exceptions=False):
                     raise OneLogin_Saml2_ValidationError(
-                        'Signature validation failed. SAML Response rejected',
+                        'Signature validation of assertion failed. SAML Response rejected',
                         OneLogin_Saml2_ValidationError.INVALID_SIGNATURE
                     )
 

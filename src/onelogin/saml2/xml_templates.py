@@ -24,13 +24,17 @@ class OneLogin_Saml2_Templates(object):
   xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
   xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"
   ID="%(id)s"
-  Version="2.0"%(provider_name)s%(force_authn_str)s%(is_passive_str)s
+  Version="2.0"%(force_authn_str)s%(is_passive_str)s
   IssueInstant="%(issue_instant)s"
   Destination="%(destination)s"
   ProtocolBinding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
   AssertionConsumerServiceURL="%(assertion_url)s"%(attr_consuming_service_str)s>
-    <saml:Issuer>%(entity_id)s</saml:Issuer>%(subject_str)s%(nameid_policy_str)s
-%(requested_authn_context_str)s
+    <saml:Issuer
+      NameQualifier="%(entity_id)s"
+      Format="urn:oasis:names:tc:SAML:2.0:nameid-format:entity">
+      %(entity_id)s
+    </saml:Issuer>
+  %(subject_str)s%(nameid_policy_str)s %(requested_authn_context_str)s
 </samlp:AuthnRequest>"""
 
     LOGOUT_REQUEST = """\
@@ -41,7 +45,11 @@ class OneLogin_Saml2_Templates(object):
   Version="2.0"
   IssueInstant="%(issue_instant)s"
   Destination="%(single_logout_url)s">
-    <saml:Issuer>%(entity_id)s</saml:Issuer>
+    <saml:Issuer
+      NameQualifier="%(entity_id)s"
+      Format="urn:oasis:names:tc:SAML:2.0:nameid-format:entity">
+      %(entity_id)s
+    </saml:Issuer>
     %(name_id)s
     %(session_index)s
 </samlp:LogoutRequest>"""
@@ -55,7 +63,11 @@ class OneLogin_Saml2_Templates(object):
   IssueInstant="%(issue_instant)s"
   Destination="%(destination)s"
   InResponseTo="%(in_response_to)s">
-    <saml:Issuer>%(entity_id)s</saml:Issuer>
+    <saml:Issuer
+        NameQualifier="%(entity_id)s"
+        Format="urn:oasis:names:tc:SAML:2.0:nameid-format:entity">
+        %(entity_id)s
+    </saml:Issuer>
     <samlp:Status>
         <samlp:StatusCode Value="%(status)s" />
     </samlp:Status>
@@ -112,7 +124,11 @@ class OneLogin_Saml2_Templates(object):
   Version="2.0"
   IssueInstant="%(issue_instant)s"
   Destination="%(destination)s">
-    <saml:Issuer>%(entity_id)s</saml:Issuer>
+    <saml:Issuer
+        NameQualifier="%(entity_id)s"
+        Format="urn:oasis:names:tc:SAML:2.0:nameid-format:entity">
+        %(entity_id)s
+    </saml:Issuer>
     <samlp:Status xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol">
         <samlp:StatusCode
           xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
@@ -125,7 +141,11 @@ class OneLogin_Saml2_Templates(object):
         Version="2.0"
         ID="%(assertion_id)s"
         IssueInstant="%(issue_instant)s">
-        <saml:Issuer>%(entity_id)s</saml:Issuer>
+        <saml:Issuer
+            NameQualifier="%(entity_id)s"
+            Format="urn:oasis:names:tc:SAML:2.0:nameid-format:entity">
+            %(entity_id)s
+        </saml:Issuer>
         <saml:Subject>
             <saml:NameID
               NameQualifier="%(entity_id)s"
