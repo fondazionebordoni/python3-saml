@@ -23,7 +23,7 @@ class OneLogin_Saml2_Logout_Response(object):
 
     """
 
-    def __init__(self, settings, response=None):
+    def __init__(self, settings, response=None, method='redirect'):
         """
         Constructs a Logout Response object (Initialize params from settings
         and if provided load the Logout Response.
@@ -36,11 +36,18 @@ class OneLogin_Saml2_Logout_Response(object):
         self.__settings = settings
         self.__error = None
         self.id = None
-
+                
         if response is not None:
-            self.__logout_response = compat.to_string(OneLogin_Saml2_Utils.decode_base64_and_inflate(response, ignore_zip=True))
+            if method == 'redirect':
+                self.__logout_response = compat.to_string(OneLogin_Saml2_Utils.decode_base64_and_inflate(response, ignore_zip=True))
+            elif method == 'post':
+                self.__logout_response = OneLogin_Saml2_Utils.b64decode(response)
+
             self.document = OneLogin_Saml2_XML.to_etree(self.__logout_response)
             self.id = self.document.get('ID', None)
+
+        if method != "redirect" and method != "post":
+            raise ValueError("Wrong value %r for argument 'method'." % method)
 
     def get_issuer(self):
         """
@@ -104,9 +111,11 @@ class OneLogin_Saml2_Logout_Response(object):
 
                 # Check issuer
                 issuer = self.get_issuer()
+                if issuer is not None:
+                    issuer = issuer.strip()
                 if issuer is not None and issuer != idp_entity_id:
                     raise OneLogin_Saml2_ValidationError(
-                        'Invalid issuer in the Logout Response (expected %(idpEntityId)s, got %(issuer)s)' %
+                        'Invalid issuer in the Logout Response (expected `%(idpEntityId)s`, got `%(issuer)s)`' %
                         {
                             'idpEntityId': idp_entity_id,
                             'issuer': issuer
