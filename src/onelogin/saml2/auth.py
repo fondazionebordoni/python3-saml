@@ -185,7 +185,7 @@ class OneLogin_Saml2_Auth(object):
 
                 in_response_to = logout_request.id
                 self.__last_message_id = logout_request.id
-                response_builder = OneLogin_Saml2_Logout_Response(self.__settings)
+                response_builder = OneLogin_Saml2_Logout_Response(self.__settings, method)
                 response_builder.build(in_response_to)
                 self.__last_response = response_builder.get_xml()
                 logout_response = response_builder.get_response()
