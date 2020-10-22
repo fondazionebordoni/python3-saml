@@ -8,7 +8,7 @@ MIT License
 SAML Response class of OneLogin's Python Toolkit.
 
 """
-
+from datetime import datetime
 from copy import deepcopy
 from onelogin.saml2.constants import OneLogin_Saml2_Constants
 from onelogin.saml2.utils import OneLogin_Saml2_Utils, OneLogin_Saml2_Error, OneLogin_Saml2_ValidationError, return_false_on_exception
@@ -53,10 +53,9 @@ class OneLogin_Saml2_Response(object):
         Verify that Response IssueInstant is greater than Request IssueInstant
         """
         try:
+            response_issue_instant = datetime.strptime(response_issue_instant, "%Y-%m-%dT%H:%M:%S%z").timestamp()
             parsed_response_instant = OneLogin_Saml2_Utils.parse_time_to_SAML(response_issue_instant)
             parsed_request_instant = OneLogin_Saml2_Utils.parse_time_to_SAML(request_instant)
-            print("PARSED RESPONSE INSTANT: %s (original: %s)." % (parsed_response_instant, response_issue_instant))
-            print("PARSED REQUEST INSTANT: %s (original: %s)." % (parsed_request_instant, request_instant))
             return parsed_response_instant > parsed_request_instant
         except Exception as e:
             print("Exception! %s" % (e))
