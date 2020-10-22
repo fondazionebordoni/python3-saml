@@ -148,7 +148,7 @@ class OneLogin_Saml2_Response(object):
 
                 # Check if the InResponseTo of the Response matchs the ID of the AuthNRequest (requestId) if provided
                 in_response_to = self.get_in_response_to()
-                if in_response_to is not None and request_id is not None:
+                if request_id is not None:
                     if in_response_to != request_id:
                         raise OneLogin_Saml2_ValidationError(
                             'The InResponseTo of the Response: %s, does not match the ID of the AuthNRequest sent by the SP: %s' % (in_response_to, request_id),
