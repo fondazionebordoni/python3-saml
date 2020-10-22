@@ -147,12 +147,12 @@ class OneLogin_Saml2_Auth(object):
 
 
         get_data = None
-        if 'post_data' in self.__request_data:
-            get_data = self.__request_data['post_data']
-            method = 'post'
-        elif 'get_data' in self.__request_data:
+        if 'get_data' in self.__request_data and self.__request_data['get_data']:
             get_data = self.__request_data['get_data']
             method = 'redirect'
+        elif 'post_data' in self.__request_data and self.__request_data['post_data']:
+            get_data = self.__request_data['post_data']
+            method = 'post'
 
         if get_data and 'SAMLResponse' in get_data:
             logout_response = OneLogin_Saml2_Logout_Response(self.__settings, get_data['SAMLResponse'], method)
