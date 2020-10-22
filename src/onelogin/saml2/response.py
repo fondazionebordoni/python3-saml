@@ -115,11 +115,19 @@ class OneLogin_Saml2_Response(object):
                     OneLogin_Saml2_ValidationError.WRONG_NUMBER_OF_ASSERTIONS
                 )
 
+            # Check that Version attribute within Assertion is equal to 2.0
             if self.get_assertion_version() != "2.0":
                 raise OneLogin_Saml2_ValidationError(
                     'SAML Assertion Version attribute must be equal to 2.0',
                     OneLogin_Saml2_ValidationError.UNSUPPORTED_SAML_VERSION
                 )
+
+            if not self.check_assertion_issue_instant(request_instant):
+                raise OneLogin_Saml2_ValidationError(
+                    'SAML Assertion IssueInstant is not valid',
+                    OneLogin_Saml2_ValidationError.INVALID_ISSUE_INSTANT
+                )
+
 
             idp_data = self.__settings.get_idp_data()
             idp_entity_id = idp_data['entityId']
@@ -955,3 +963,26 @@ class OneLogin_Saml2_Response(object):
                 OneLogin_Saml2_ValidationError.WRONG_NUMBER_OF_ASSERTIONS
             )
         return self.__query_assertion('')[0].get('Version', None)
+
+    def check_assertion_issue_instant(self, request_instant):
+        """
+        Verify that Assertion IssueInstant is greater than Request IssueInstant and less than datetime.now().
+        """
+        if not self.validate_num_assertions():
+            raise OneLogin_Saml2_ValidationError(
+                'SAML Response must contain 1 assertion',
+                OneLogin_Saml2_ValidationError.WRONG_NUMBER_OF_ASSERTIONS
+            )
+
+        assertion_instant_str = self.__query_assertion('')[0].get('Version', None)
+        try:
+            assertion_instant = datetime.strptime(assertion_instant_str, "%Y-%m-%dT%H:%M:%S%z").timestamp()
+            parsed_assertion_instant = OneLogin_Saml2_Utils.parse_time_to_SAML(assertion_instant)
+            parsed_request_instant = OneLogin_Saml2_Utils.parse_time_to_SAML(request_instant)
+
+            current_timestamp = OneLogin_Saml2_Utils.parse_time_to_SAML(datetime.now(timezone.utc).timestamp())
+
+            return parsed_assertion_instant > parsed_request_instant and parsed_assertion_instant < current_timestamp
+        except Exception as e:
+            print("Exception! %s" % (e))
+            return False
