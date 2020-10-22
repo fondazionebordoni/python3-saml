@@ -31,9 +31,7 @@ class OneLogin_Saml2_Templates(object):
   AssertionConsumerServiceURL="%(assertion_url)s"%(attr_consuming_service_str)s>
     <saml:Issuer
       NameQualifier="%(entity_id)s"
-      Format="urn:oasis:names:tc:SAML:2.0:nameid-format:entity">
-      %(entity_id)s
-    </saml:Issuer>
+      Format="urn:oasis:names:tc:SAML:2.0:nameid-format:entity">%(entity_id)s</saml:Issuer>
   %(subject_str)s%(nameid_policy_str)s %(requested_authn_context_str)s
 </samlp:AuthnRequest>"""
 
@@ -47,9 +45,7 @@ class OneLogin_Saml2_Templates(object):
   Destination="%(single_logout_url)s">
     <saml:Issuer
       NameQualifier="%(entity_id)s"
-      Format="urn:oasis:names:tc:SAML:2.0:nameid-format:entity">
-      %(entity_id)s
-    </saml:Issuer>
+      Format="urn:oasis:names:tc:SAML:2.0:nameid-format:entity">%(entity_id)s</saml:Issuer>
     %(name_id)s
     %(session_index)s
 </samlp:LogoutRequest>"""
@@ -65,9 +61,7 @@ class OneLogin_Saml2_Templates(object):
   InResponseTo="%(in_response_to)s">
     <saml:Issuer
         NameQualifier="%(entity_id)s"
-        Format="urn:oasis:names:tc:SAML:2.0:nameid-format:entity">
-        %(entity_id)s
-    </saml:Issuer>
+        Format="urn:oasis:names:tc:SAML:2.0:nameid-format:entity">%(entity_id)s</saml:Issuer>
     <samlp:Status>
         <samlp:StatusCode Value="%(status)s" />
     </samlp:Status>
@@ -126,9 +120,7 @@ class OneLogin_Saml2_Templates(object):
   Destination="%(destination)s">
     <saml:Issuer
         NameQualifier="%(entity_id)s"
-        Format="urn:oasis:names:tc:SAML:2.0:nameid-format:entity">
-        %(entity_id)s
-    </saml:Issuer>
+        Format="urn:oasis:names:tc:SAML:2.0:nameid-format:entity">%(entity_id)s</saml:Issuer>
     <samlp:Status xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol">
         <samlp:StatusCode
           xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
@@ -143,9 +135,7 @@ class OneLogin_Saml2_Templates(object):
         IssueInstant="%(issue_instant)s">
         <saml:Issuer
             NameQualifier="%(entity_id)s"
-            Format="urn:oasis:names:tc:SAML:2.0:nameid-format:entity">
-            %(entity_id)s
-        </saml:Issuer>
+            Format="urn:oasis:names:tc:SAML:2.0:nameid-format:entity">%(entity_id)s</saml:Issuer>
         <saml:Subject>
             <saml:NameID
               NameQualifier="%(entity_id)s"
