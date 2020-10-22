@@ -10,10 +10,12 @@ Logout Response class of OneLogin's Python Toolkit.
 """
 
 from onelogin.saml2 import compat
-from onelogin.saml2.utils import OneLogin_Saml2_Utils, OneLogin_Saml2_ValidationError
+from onelogin.saml2.constants import OneLogin_Saml2_Constants
+from onelogin.saml2.utils import OneLogin_Saml2_Utils, OneLogin_Saml2_ValidationError, return_false_on_exception
 from onelogin.saml2.xml_templates import OneLogin_Saml2_Templates
 from onelogin.saml2.xml_utils import OneLogin_Saml2_XML
 
+LOGOUT_RESPONSE_SIGNATURE_XPATH = '/samlp:LogoutResponse/ds:Signature'
 
 class OneLogin_Saml2_Logout_Response(object):
     """
@@ -74,6 +76,100 @@ class OneLogin_Saml2_Logout_Response(object):
             return None
         status = entries[0].attrib['Value']
         return status
+
+    def process_signed_elements(self):
+        """
+        If the logout response is sent via POST, then the signature is embedded within the Response XML.
+        """
+        sign_nodes = self.__query('//ds:Signature')
+
+        signed_elements = []
+        verified_seis = []
+        verified_ids = []
+        response_tag = '{%s}LogoutResponse' % OneLogin_Saml2_Constants.NS_SAMLP
+
+        for sign_node in sign_nodes:
+            signed_element = sign_node.getparent().tag
+            if signed_element != response_tag:
+                raise OneLogin_Saml2_ValidationError(
+                    'Invalid Signature Element %s SAML Response rejected' % signed_element,
+                    OneLogin_Saml2_ValidationError.WRONG_SIGNED_ELEMENT
+                )
+
+            if not sign_node.getparent().get('ID'):
+                raise OneLogin_Saml2_ValidationError(
+                    'Signed Element must contain an ID. SAML Response rejected',
+                    OneLogin_Saml2_ValidationError.ID_NOT_FOUND_IN_SIGNED_ELEMENT
+                )
+
+            id_value = sign_node.getparent().get('ID')
+            if id_value in verified_ids:
+                raise OneLogin_Saml2_ValidationError(
+                    'Duplicated ID. SAML Response rejected',
+                    OneLogin_Saml2_ValidationError.DUPLICATED_ID_IN_SIGNED_ELEMENTS
+                )
+            verified_ids.append(id_value)
+
+            # Check that reference URI matches the parent ID and no duplicate References or IDs
+            ref = OneLogin_Saml2_XML.query(sign_node, './/ds:Reference')
+            if ref:
+                ref = ref[0]
+                if ref.get('URI'):
+                    sei = ref.get('URI')[1:]
+
+                    if sei != id_value:
+                        raise OneLogin_Saml2_ValidationError(
+                            'Found an invalid Signed Element. SAML Response rejected',
+                            OneLogin_Saml2_ValidationError.INVALID_SIGNED_ELEMENT
+                        )
+
+                    if sei in verified_seis:
+                        raise OneLogin_Saml2_ValidationError(
+                            'Duplicated Reference URI. SAML Response rejected',
+                            OneLogin_Saml2_ValidationError.DUPLICATED_REFERENCE_IN_SIGNED_ELEMENTS
+                        )
+                    verified_seis.append(sei)
+
+            signed_elements.append(signed_element)
+
+        if signed_elements:
+            if not self.validate_signed_elements(signed_elements, raise_exceptions=True):
+                raise OneLogin_Saml2_ValidationError(
+                    'Found an unexpected Signature Element. SAML Response rejected',
+                    OneLogin_Saml2_ValidationError.UNEXPECTED_SIGNED_ELEMENTS
+                )
+        return signed_elements
+
+    @return_false_on_exception
+    def validate_signed_elements(self, signed_elements):
+        """
+        Verifies that the document has the expected signed nodes.
+
+        :param signed_elements: The signed elements to be checked
+        :type signed_elements: list
+        :param raise_exceptions: Whether to return false on failure or raise an exception
+        :type raise_exceptions: Boolean
+        """
+        if len(signed_elements) > 2:
+            return False
+
+        response_tag = '{%s}LogoutResponse' % OneLogin_Saml2_Constants.NS_SAMLP
+
+        if (response_tag in signed_elements and signed_elements.count(response_tag) > 1) or \
+           (response_tag not in signed_elements):
+            return False
+
+        # Check that the signed elements found here, are the ones that will be verified
+        # by OneLogin_Saml2_Utils.validate_sign
+        if response_tag in signed_elements:
+            expected_signature_nodes = OneLogin_Saml2_XML.query(self.document, LOGOUT_RESPONSE_SIGNATURE_XPATH)
+            if len(expected_signature_nodes) != 1:
+                print('Unexpected number of Response signatures found. SAML Response rejected. Nodes = %s' % expected_signature_nodes)
+                raise OneLogin_Saml2_ValidationError(
+                    'Unexpected number of Response signatures found. SAML Response rejected.',
+                    OneLogin_Saml2_ValidationError.WRONG_NUMBER_OF_SIGNATURES_IN_RESPONSE
+                )
+        return True
 
     def is_valid(self, request_data=None, request_id=None, raise_exceptions=False):
         """
@@ -137,8 +233,14 @@ class OneLogin_Saml2_Logout_Response(object):
                     )
                 if security['wantMessagesSigned']:
                     if self.__is_post:
-                        # TODO Check embedded signature
-                        pass
+                        # Check embedded signature
+                        signed_elements = self.process_signed_elements()
+                        has_signed_response = '{%s}LogoutResponse' % OneLogin_Saml2_Constants.NS_SAMLP in signed_elements
+                        if not has_signed_response:
+                            raise OneLogin_Saml2_ValidationError(
+                                'The Message of the Logout Response is not signed and the SP require it',
+                                OneLogin_Saml2_ValidationError.NO_SIGNED_MESSAGE
+                            )
                     elif 'Signature' not in get_data:
                         # TODO This check is actually already done in auth.process_slo?
                         raise OneLogin_Saml2_ValidationError(
