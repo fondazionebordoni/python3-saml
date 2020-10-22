@@ -115,6 +115,12 @@ class OneLogin_Saml2_Response(object):
                     OneLogin_Saml2_ValidationError.WRONG_NUMBER_OF_ASSERTIONS
                 )
 
+            if self.get_assertion_version() != "2.0":
+                raise OneLogin_Saml2_ValidationError(
+                    'SAML Assertion Version attribute must be equal to 2.0',
+                    OneLogin_Saml2_ValidationError.UNSUPPORTED_SAML_VERSION
+                )
+
             idp_data = self.__settings.get_idp_data()
             idp_entity_id = idp_data['entityId']
             sp_data = self.__settings.get_sp_data()
@@ -937,3 +943,15 @@ class OneLogin_Saml2_Response(object):
                 OneLogin_Saml2_ValidationError.WRONG_NUMBER_OF_ASSERTIONS
             )
         return self.__query_assertion('')[0].get('ID', None)
+    
+    def get_assertion_version(self):
+        """
+        :returns: the ID of the assertion in the response
+        :rtype: string
+        """
+        if not self.validate_num_assertions():
+            raise OneLogin_Saml2_ValidationError(
+                'SAML Response must contain 1 assertion',
+                OneLogin_Saml2_ValidationError.WRONG_NUMBER_OF_ASSERTIONS
+            )
+        return self.__query_assertion('')[0].get('Version', None)
