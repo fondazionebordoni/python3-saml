@@ -230,6 +230,11 @@ class OneLogin_Saml2_Response(object):
                         'The response has an empty Destination value',
                         OneLogin_Saml2_ValidationError.EMPTY_DESTINATION
                     )
+                else:
+                    raise OneLogin_Saml2_ValidationError(
+                        'The response has not a Destination value',
+                        OneLogin_Saml2_ValidationError.MISSING_DESTINATION
+                    )
                 # Checks audience
                 valid_audiences = self.get_audiences()
                 if valid_audiences and sp_entity_id not in valid_audiences:
