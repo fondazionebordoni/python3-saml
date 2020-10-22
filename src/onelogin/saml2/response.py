@@ -8,7 +8,7 @@ MIT License
 SAML Response class of OneLogin's Python Toolkit.
 
 """
-from datetime import datetime
+from datetime import datetime, timezone
 from copy import deepcopy
 from onelogin.saml2.constants import OneLogin_Saml2_Constants
 from onelogin.saml2.utils import OneLogin_Saml2_Utils, OneLogin_Saml2_Error, OneLogin_Saml2_ValidationError, return_false_on_exception
@@ -50,13 +50,16 @@ class OneLogin_Saml2_Response(object):
 
     def check_issue_instant(self, request_instant, response_issue_instant):
         """
-        Verify that Response IssueInstant is greater than Request IssueInstant
+        Verify that Response IssueInstant is greater than Request IssueInstant and less than datetime.now().
         """
         try:
             response_issue_instant = datetime.strptime(response_issue_instant, "%Y-%m-%dT%H:%M:%S%z").timestamp()
             parsed_response_instant = OneLogin_Saml2_Utils.parse_time_to_SAML(response_issue_instant)
             parsed_request_instant = OneLogin_Saml2_Utils.parse_time_to_SAML(request_instant)
-            return parsed_response_instant > parsed_request_instant
+
+            current_timestamp = OneLogin_Saml2_Utils.parse_time_to_SAML(datetime.now(timezone.utc).timestamp())
+
+            return parsed_response_instant > parsed_request_instant and parsed_response_instant < current_timestamp
         except Exception as e:
             print("Exception! %s" % (e))
             return False
@@ -91,7 +94,7 @@ class OneLogin_Saml2_Response(object):
             response_issue_instant = self.document.get('IssueInstant', None)
             if not request_instant or not response_issue_instant or not self.check_issue_instant(request_instant, response_issue_instant):
                 raise OneLogin_Saml2_ValidationError(
-                    'IssueInstant is too old or request instant is None',
+                    'IssueInstant is either too old or ahead of current date and time.',
                     OneLogin_Saml2_ValidationError.INVALID_ISSUE_INSTANT
                 )
 
