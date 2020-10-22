@@ -376,6 +376,11 @@ class OneLogin_Saml2_Response(object):
                 status_exception_msg,
                 OneLogin_Saml2_ValidationError.STATUS_CODE_IS_NOT_SUCCESS
             )
+        elif not code:
+            raise OneLogin_Saml2_ValidationError(
+                "The status code of the Response was missing.",
+                OneLogin_Saml2_ValidationError.STATUS_CODE_MISSING
+            )
 
     def check_one_condition(self):
         """

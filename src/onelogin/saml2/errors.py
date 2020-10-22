@@ -112,6 +112,7 @@ class OneLogin_Saml2_ValidationError(Exception):
     AUTHN_CONTEXT_MISMATCH = 45
     INVALID_ISSUE_INSTANT = 46
     MISSING_DESTINATION = 47
+    STATUS_CODE_MISSING = 48
 
     def __init__(self, message, code=0, errors=None):
         """
