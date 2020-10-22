@@ -48,7 +48,22 @@ class OneLogin_Saml2_Response(object):
             self.encrypted = True
             self.decrypted_document = self.__decrypt_assertion(decrypted_document)
 
-    def is_valid(self, request_data, request_id=None, raise_exceptions=False):
+    def check_issue_instant(self, request_instant, response_issue_instant):
+        """
+        Verify that Response IssueInstant is greater than Request IssueInstant
+        """
+        try:
+            parsed_response_instant = OneLogin_Saml2_Utils.parse_time_to_SAML(response_issue_instant)
+            parsed_request_instant = OneLogin_Saml2_Utils.parse_time_to_SAML(request_instant)
+            print("PARSED RESPONSE INSTANT: %s (original: %s)." % (parsed_response_instant, response_issue_instant))
+            print("PARSED REQUEST INSTANT: %s (original: %s)." % (parsed_request_instant, request_instant))
+            return parsed_response_instant > parsed_request_instant
+        except Exception as e:
+            print("Exception! %s" % (e))
+            return False
+
+
+    def is_valid(self, request_data, request_id=None, request_instant=None, raise_exceptions=False):
         """
         Validates the response object.
 
@@ -71,6 +86,14 @@ class OneLogin_Saml2_Response(object):
                 raise OneLogin_Saml2_ValidationError(
                     'Unsupported SAML version',
                     OneLogin_Saml2_ValidationError.UNSUPPORTED_SAML_VERSION
+                )
+            
+            # Check the issueInstant
+            response_issue_instant = self.document.get('IssueInstant', None)
+            if not request_instant or not response_issue_instant or not self.check_issue_instant(request_instant, response_issue_instant):
+                raise OneLogin_Saml2_ValidationError(
+                    'IssueInstant is too old or request instant is None',
+                    OneLogin_Saml2_ValidationError.INVALID_ISSUE_INSTANT
                 )
 
             # Checks that ID exists

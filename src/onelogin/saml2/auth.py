@@ -88,7 +88,7 @@ class OneLogin_Saml2_Auth(object):
         assert isinstance(value, bool)
         self.__settings.set_strict(value)
 
-    def process_response(self, request_id=None):
+    def process_response(self, request_id=None, request_instant=None):
         """
         Process the SAML Response sent by the IdP.
 
@@ -105,7 +105,7 @@ class OneLogin_Saml2_Auth(object):
             response = OneLogin_Saml2_Response(self.__settings, self.__request_data['post_data']['SAMLResponse'])
             self.__last_response = response.get_xml_document()
 
-            if response.is_valid(self.__request_data, request_id):
+            if response.is_valid(self.__request_data, request_id, request_instant):
                 self.__attributes = response.get_attributes()
                 self.__nameid = response.get_nameid()
                 self.__nameid_format = response.get_nameid_format()
