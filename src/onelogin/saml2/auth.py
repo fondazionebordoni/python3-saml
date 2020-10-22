@@ -145,19 +145,20 @@ class OneLogin_Saml2_Auth(object):
         self.__errors = []
         self.__error_reason = None
 
-        get_data = 'get_data' in self.__request_data and self.__request_data['get_data']
-        post_data = 'post_data' in self.__request_data and self.__request_data['post_data']
-        get_data = 'get_data' in self.__request_data and self.__request_data['get_data']
-        method = 'redirect'
 
-        if post_data:
-            get_data = post_data
+        get_data = None
+        if 'get_data' in self.__request_data and self.__request_data['get_data']:
+            get_data = self.__request_data['get_data']
+            method = 'redirect'
+        elif 'post_data' in self.__request_data and self.__request_data['post_data']:
+            get_data = self.__request_data['post_data']
             method = 'post'
-        
+
         if get_data and 'SAMLResponse' in get_data:
             logout_response = OneLogin_Saml2_Logout_Response(self.__settings, get_data['SAMLResponse'], method)
             self.__last_response = logout_response.get_xml()
-            if not self.validate_response_signature(get_data):
+            # Signature is embedded if POST
+            if method == 'redirect' and not self.validate_response_signature(get_data):
                 self.__errors.append('invalid_logout_response_signature')
                 self.__errors.append('Signature validation failed. Logout Response rejected')
             elif not logout_response.is_valid(self.__request_data, request_id):
@@ -173,7 +174,8 @@ class OneLogin_Saml2_Auth(object):
         elif get_data and 'SAMLRequest' in get_data:
             logout_request = OneLogin_Saml2_Logout_Request(self.__settings, get_data['SAMLRequest'])
             self.__last_request = logout_request.get_xml()
-            if not self.validate_request_signature(get_data):
+            # Signature is embedded if POST (TODO check how to handle and test this!)
+            if method == 'redirect' and not self.validate_request_signature(get_data):
                 self.__errors.append("invalid_logout_request_signature")
                 self.__errors.append('Signature validation failed. Logout Request rejected')
             elif not logout_request.is_valid(self.__request_data):
@@ -202,7 +204,7 @@ class OneLogin_Saml2_Auth(object):
         else:
             self.__errors.append('invalid_binding')
             raise OneLogin_Saml2_Error(
-                'SAML LogoutRequest/LogoutResponse not found. Only supported HTTP_REDIRECT Binding',
+                'SAML LogoutRequest/LogoutResponse not found.',
                 OneLogin_Saml2_Error.SAML_LOGOUTMESSAGE_NOT_FOUND
             )
 

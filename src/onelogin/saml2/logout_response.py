@@ -35,6 +35,7 @@ class OneLogin_Saml2_Logout_Response(object):
         """
         self.__settings = settings
         self.__error = None
+        self.__is_post = method == 'post'
         self.id = None
                 
         if response is not None:
@@ -42,7 +43,8 @@ class OneLogin_Saml2_Logout_Response(object):
                 self.__logout_response = compat.to_string(OneLogin_Saml2_Utils.decode_base64_and_inflate(response, ignore_zip=True))
             elif method == 'post':
                 self.__logout_response = OneLogin_Saml2_Utils.b64decode(response)
-
+            else:
+                raise ValueError("Wrong value %r for argument 'method'." % method)
             self.document = OneLogin_Saml2_XML.to_etree(self.__logout_response)
             self.id = self.document.get('ID', None)
 
@@ -73,7 +75,7 @@ class OneLogin_Saml2_Logout_Response(object):
         status = entries[0].attrib['Value']
         return status
 
-    def is_valid(self, request_data, request_id=None, raise_exceptions=False):
+    def is_valid(self, request_data=None, request_id=None, raise_exceptions=False):
         """
         Determines if the SAML LogoutResponse is valid
         :param request_id: The ID of the LogoutRequest sent by this SP to the IdP
@@ -89,7 +91,8 @@ class OneLogin_Saml2_Logout_Response(object):
         try:
             idp_data = self.__settings.get_idp_data()
             idp_entity_id = idp_data['entityId']
-            get_data = request_data['get_data']
+            if not self.__is_post:
+                get_data = request_data['get_data']
 
             if self.__settings.is_strict():
                 res = OneLogin_Saml2_XML.validate_xml(self.document, 'saml-schema-protocol-2.0.xsd', self.__settings.is_debug_active())
@@ -132,9 +135,12 @@ class OneLogin_Saml2_Logout_Response(object):
                         'The LogoutResponse was received at %s instead of %s' % (current_url, destination),
                         OneLogin_Saml2_ValidationError.WRONG_DESTINATION
                     )
-
                 if security['wantMessagesSigned']:
-                    if 'Signature' not in get_data:
+                    if self.__is_post:
+                        # TODO Check embedded signature
+                        pass
+                    elif 'Signature' not in get_data:
+                        # TODO This check is actually already done in auth.process_slo?
                         raise OneLogin_Saml2_ValidationError(
                             'The Message of the Logout Response is not signed and the SP require it',
                             OneLogin_Saml2_ValidationError.NO_SIGNED_MESSAGE
