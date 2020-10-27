@@ -490,6 +490,11 @@ class OneLogin_Saml2_Response(object):
             issuer_value = OneLogin_Saml2_XML.element_text(assertion_issuer_nodes[0])
             if issuer_value:
                 issuers.add(issuer_value)
+            else:
+                raise OneLogin_Saml2_ValidationError(
+                'Issuer of the Assertion not found or multiple.',
+                OneLogin_Saml2_ValidationError.ISSUER_NOT_FOUND_IN_ASSERTION
+            )
         else:
             raise OneLogin_Saml2_ValidationError(
                 'Issuer of the Assertion not found or multiple.',
