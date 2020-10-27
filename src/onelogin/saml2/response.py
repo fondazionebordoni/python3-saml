@@ -288,7 +288,15 @@ class OneLogin_Saml2_Response(object):
                 for scn in subject_confirmation_nodes:
                     method = scn.get('Method', None)
                     if method and method != OneLogin_Saml2_Constants.CM_BEARER:
-                        continue
+                        raise OneLogin_Saml2_ValidationError(
+                            'Attribute Method value of SubjectConfirmation different from bearer',
+                            OneLogin_Saml2_ValidationError.WRONG_METHOD_SUBJ_CONF
+                        )
+                    elif not method:
+                        raise OneLogin_Saml2_ValidationError(
+                            'Missing attribute Method of SubjectConfirmation',
+                            OneLogin_Saml2_ValidationError.NO_METHOD_SUBJ_CONF
+                        )
                     sc_data = scn.find('saml:SubjectConfirmationData', namespaces=OneLogin_Saml2_Constants.NSMAP)
                     if sc_data is None:
                         continue
