@@ -843,6 +843,16 @@ class OneLogin_Saml2_Response(object):
                     'Could not validate timestamp: expired. Check system clock.',
                     OneLogin_Saml2_ValidationError.ASSERTION_EXPIRED
                 )
+            elif not nooa_attr:
+                raise OneLogin_Saml2_ValidationError(
+                    'Could not validate timestamp: missing attribute NotOnOrAfter of Conditions.',
+                    OneLogin_Saml2_ValidationError.ASSERTION_CONDITIONS_MISSING_NOOA
+                )
+            if not self.__query_assertion('/saml:Conditions/saml:AudienceRestriction'):
+                raise OneLogin_Saml2_ValidationError(
+                'Could not validate timestamp: empty Conditions element.',
+                OneLogin_Saml2_ValidationError.ASSERTION_EMPTY_CONDITIONS
+            )
         return True
 
     def __query_assertion(self, xpath_expr):

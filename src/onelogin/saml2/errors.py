@@ -120,6 +120,9 @@ class OneLogin_Saml2_ValidationError(Exception):
     WRONG_METHOD_SUBJ_CONF = 53
     NO_FORMAT_IN_ISSUER_IN_ASSERTION = 54
     WRONG_FORMAT_IN_ISSUER_IN_ASSERTION = 55
+    ASSERTION_MISSING_CONDITIONS = 56
+    ASSERTION_EMPTY_CONDITIONS = 57
+    ASSERTION_CONDITIONS_MISSING_NOOA = 58
 
     def __init__(self, message, code=0, errors=None):
         """
