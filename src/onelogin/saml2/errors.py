@@ -115,6 +115,7 @@ class OneLogin_Saml2_ValidationError(Exception):
     STATUS_CODE_MISSING = 48
     NO_FORMAT_NAMEID = 49
     WRONG_FORMAT_NAMEID = 50
+    NO_NQ_NAMEID = 51
 
     def __init__(self, message, code=0, errors=None):
         """

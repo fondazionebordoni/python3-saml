@@ -501,6 +501,7 @@ class OneLogin_Saml2_Response(object):
             if nameid_nodes:
                 nameid = nameid_nodes[0]
                 self.check_nameid_format(nameid)
+                self.check_nameid_namequalifier(nameid)
 
         is_strict = self.__settings.is_strict()
         want_nameid = self.__settings.get_security_data().get('wantNameId', True)
@@ -1005,4 +1006,11 @@ class OneLogin_Saml2_Response(object):
             raise OneLogin_Saml2_ValidationError(
                 'Attribute Format value of NameID different from transient.',
                 OneLogin_Saml2_ValidationError.NO_FORMAT_NAMEID
+            )
+
+    def check_nameid_namequalifier(self, nameid):
+        if not nameid.get("NameQualifier", None):
+            raise OneLogin_Saml2_ValidationError(
+                'Missing attribute NameQualifier of NameID in the assertion of the Response',
+                OneLogin_Saml2_ValidationError.NO_NQ_NAMEID
             )
