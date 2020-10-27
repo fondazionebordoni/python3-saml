@@ -191,8 +191,7 @@ class OneLogin_Saml2_Response(object):
                     )
 
                 #Check if nameid is valid
-                nameid = self.get_nameid()
-
+                self.check_nameid()
 
                 # Validates Assertion timestamps
                 self.validate_timestamps(raise_exceptions=True)
@@ -501,6 +500,7 @@ class OneLogin_Saml2_Response(object):
             nameid_nodes = self.__query_assertion('/saml:Subject/saml:NameID')
             if nameid_nodes:
                 nameid = nameid_nodes[0]
+                self.check_nameid_format(nameid)
 
         is_strict = self.__settings.is_strict()
         want_nameid = self.__settings.get_security_data().get('wantNameId', True)
@@ -991,3 +991,18 @@ class OneLogin_Saml2_Response(object):
         except Exception as e:
             print("Exception! %s" % (e))
             return False
+
+    def check_nameid(self):
+        return self.get_nameid()
+
+    def check_nameid_format(self, nameid):
+        if not nameid.get("Format", None):
+            raise OneLogin_Saml2_ValidationError(
+                'Missing attribute Format of NameID in the assertion of the Response',
+                OneLogin_Saml2_ValidationError.NO_FORMAT_NAMEID
+            )
+        elif nameid.get("Format", None) != "urn:oasis:names:tc:SAML:2.0:nameid-format:transient":
+            raise OneLogin_Saml2_ValidationError(
+                'Attribute Format value of NameID different from transient.',
+                OneLogin_Saml2_ValidationError.NO_FORMAT_NAMEID
+            )

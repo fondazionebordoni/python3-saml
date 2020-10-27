@@ -113,6 +113,8 @@ class OneLogin_Saml2_ValidationError(Exception):
     INVALID_ISSUE_INSTANT = 46
     MISSING_DESTINATION = 47
     STATUS_CODE_MISSING = 48
+    NO_FORMAT_NAMEID = 49
+    WRONG_FORMAT_NAMEID = 50
 
     def __init__(self, message, code=0, errors=None):
         """
