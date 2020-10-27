@@ -190,6 +190,10 @@ class OneLogin_Saml2_Response(object):
                         OneLogin_Saml2_ValidationError.MISSING_CONDITIONS
                     )
 
+                #Check if nameid is valid
+                nameid = self.get_nameid()
+
+
                 # Validates Assertion timestamps
                 self.validate_timestamps(raise_exceptions=True)
 
@@ -507,7 +511,8 @@ class OneLogin_Saml2_Response(object):
                     OneLogin_Saml2_ValidationError.NO_NAMEID
                 )
         else:
-            if is_strict and want_nameid and not OneLogin_Saml2_XML.element_text(nameid):
+            empty_nameid = (not OneLogin_Saml2_XML.element_text(nameid) or str(nameid.text).strip() == "")
+            if is_strict and want_nameid and empty_nameid:
                 raise OneLogin_Saml2_ValidationError(
                     'An empty NameID value found',
                     OneLogin_Saml2_ValidationError.EMPTY_NAMEID
@@ -974,7 +979,7 @@ class OneLogin_Saml2_Response(object):
                 OneLogin_Saml2_ValidationError.WRONG_NUMBER_OF_ASSERTIONS
             )
 
-        assertion_instant_str = self.__query_assertion('')[0].get('Version', None)
+        assertion_instant_str = self.__query_assertion('')[0].get('IssueInstant', None)
         try:
             assertion_instant = datetime.strptime(assertion_instant_str, "%Y-%m-%dT%H:%M:%S%z").timestamp()
             parsed_assertion_instant = OneLogin_Saml2_Utils.parse_time_to_SAML(assertion_instant)
