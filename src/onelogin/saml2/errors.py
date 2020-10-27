@@ -123,6 +123,7 @@ class OneLogin_Saml2_ValidationError(Exception):
     ASSERTION_MISSING_CONDITIONS = 56
     ASSERTION_EMPTY_CONDITIONS = 57
     ASSERTION_CONDITIONS_MISSING_NOOA = 58
+    ASSERTION_MISSING_AUDIENCE = 59
 
     def __init__(self, message, code=0, errors=None):
         """

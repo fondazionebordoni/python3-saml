@@ -853,6 +853,12 @@ class OneLogin_Saml2_Response(object):
                 'Could not validate timestamp: empty Conditions element.',
                 OneLogin_Saml2_ValidationError.ASSERTION_EMPTY_CONDITIONS
             )
+            audience_nodes = self.__query_assertion('/saml:Conditions/saml:AudienceRestriction/saml:Audience')
+            if not audience_nodes or not audience_nodes[0].text or audience_nodes[0].text.strip() == "":
+                raise OneLogin_Saml2_ValidationError(
+                'Could not validate timestamp: Audience element is either empty or missing.',
+                OneLogin_Saml2_ValidationError.ASSERTION_MISSING_AUDIENCE
+            )
         return True
 
     def __query_assertion(self, xpath_expr):
