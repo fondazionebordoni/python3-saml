@@ -304,14 +304,23 @@ class OneLogin_Saml2_Response(object):
                         irt = sc_data.get('InResponseTo', None)
                         if in_response_to and irt and irt != in_response_to:
                             continue
+                        # InResponseTo must have a value
+                        elif not irt:
+                            continue
                         recipient = sc_data.get('Recipient', None)
                         if recipient and current_url not in recipient:
+                            continue
+                        # Recipient must have a value
+                        elif not recipient:
                             continue
                         nooa = sc_data.get('NotOnOrAfter', None)
                         if nooa:
                             parsed_nooa = OneLogin_Saml2_Utils.parse_SAML_to_time(nooa)
                             if parsed_nooa <= OneLogin_Saml2_Utils.now():
                                 continue
+                        # NotOnOrAfter must have a value
+                        elif not nooa:
+                            continue
                         nb = sc_data.get('NotBefore', None)
                         if nb:
                             parsed_nb = OneLogin_Saml2_Utils.parse_SAML_to_time(nb)
