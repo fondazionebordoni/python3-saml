@@ -487,14 +487,25 @@ class OneLogin_Saml2_Response(object):
 
         assertion_issuer_nodes = self.__query_assertion('/saml:Issuer')
         if len(assertion_issuer_nodes) == 1:
+            issuer_format = assertion_issuer_nodes[0].get("Format", None)
+            if not issuer_format:
+                raise OneLogin_Saml2_ValidationError(
+                    'Issuer of the Assertion does not have a value for Format attribute.',
+                    OneLogin_Saml2_ValidationError.NO_FORMAT_IN_ISSUER_IN_ASSERTION
+                )
+            elif issuer_format != "rn:oasis:names:tc:SAML:2.0:nameid-format:entity":
+                raise OneLogin_Saml2_ValidationError(
+                    'Issuer of the Assertion does not have a valid Format attribute.',
+                    OneLogin_Saml2_ValidationError.WRONG_FORMAT_IN_ISSUER_IN_ASSERTION
+                )
             issuer_value = OneLogin_Saml2_XML.element_text(assertion_issuer_nodes[0])
             if issuer_value:
                 issuers.add(issuer_value)
             else:
                 raise OneLogin_Saml2_ValidationError(
-                'Issuer of the Assertion not found or multiple.',
-                OneLogin_Saml2_ValidationError.ISSUER_NOT_FOUND_IN_ASSERTION
-            )
+                    'Issuer of the Assertion not found or multiple.',
+                    OneLogin_Saml2_ValidationError.ISSUER_NOT_FOUND_IN_ASSERTION
+                )
         else:
             raise OneLogin_Saml2_ValidationError(
                 'Issuer of the Assertion not found or multiple.',

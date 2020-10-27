@@ -118,6 +118,8 @@ class OneLogin_Saml2_ValidationError(Exception):
     NO_NQ_NAMEID = 51
     NO_METHOD_SUBJ_CONF = 52
     WRONG_METHOD_SUBJ_CONF = 53
+    NO_FORMAT_IN_ISSUER_IN_ASSERTION = 54
+    WRONG_FORMAT_IN_ISSUER_IN_ASSERTION = 55
 
     def __init__(self, message, code=0, errors=None):
         """
