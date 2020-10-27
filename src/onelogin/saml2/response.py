@@ -493,7 +493,8 @@ class OneLogin_Saml2_Response(object):
                     'Issuer of the Assertion does not have a value for Format attribute.',
                     OneLogin_Saml2_ValidationError.NO_FORMAT_IN_ISSUER_IN_ASSERTION
                 )
-            elif issuer_format != "rn:oasis:names:tc:SAML:2.0:nameid-format:entity":
+            elif issuer_format != "urn:oasis:names:tc:SAML:2.0:nameid-format:entity":
+                print("Issuer format value: %s" % (issuer_format))
                 raise OneLogin_Saml2_ValidationError(
                     'Issuer of the Assertion does not have a valid Format attribute.',
                     OneLogin_Saml2_ValidationError.WRONG_FORMAT_IN_ISSUER_IN_ASSERTION
