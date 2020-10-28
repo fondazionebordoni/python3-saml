@@ -120,6 +120,15 @@ class OneLogin_Saml2_Response(object):
                     OneLogin_Saml2_ValidationError.WRONG_NUMBER_OF_ASSERTIONS
                 )
 
+            # Check that ID attribute within Assertion is not missing
+            assertion_id = self.get_assertion_id()
+            print("AssertionID = %s" % (assertion_id))
+            if not assertion_id:
+                raise OneLogin_Saml2_ValidationError(
+                    'SAML Assertion ID attribute is missing',
+                    OneLogin_Saml2_ValidationError.MISSING_ID_ASSERTION
+                )
+
             # Check that Version attribute within Assertion is equal to 2.0
             if self.get_assertion_version() != "2.0":
                 raise OneLogin_Saml2_ValidationError(
@@ -1040,6 +1049,9 @@ class OneLogin_Saml2_Response(object):
                 'SAML Response must contain 1 assertion',
                 OneLogin_Saml2_ValidationError.WRONG_NUMBER_OF_ASSERTIONS
             )
+        
+        if not self.__query_assertion(''):
+            return None
         return self.__query_assertion('')[0].get('ID', None)
     
     def get_assertion_version(self):
@@ -1052,7 +1064,7 @@ class OneLogin_Saml2_Response(object):
                 'SAML Response must contain 1 assertion',
                 OneLogin_Saml2_ValidationError.WRONG_NUMBER_OF_ASSERTIONS
             )
-        return self.__query_assertion('')[0].get('Version', None)
+        return self.__query_assertion('')[0].get('Version', None)        
 
     def check_assertion_issue_instant(self, request_instant):
         """

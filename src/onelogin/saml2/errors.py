@@ -127,6 +127,7 @@ class OneLogin_Saml2_ValidationError(Exception):
     MISSING_ATTRIBUTE_VALUE = 60
     ISSUER_NOT_FOUND_IN_RESPONSE = 61
     WRONG_FORMAT_IN_ISSUER_IN_RESPONSE = 62
+    MISSING_ID_ASSERTION = 63
 
     def __init__(self, message, code=0, errors=None):
         """
