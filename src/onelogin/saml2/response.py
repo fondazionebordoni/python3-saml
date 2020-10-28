@@ -880,6 +880,11 @@ class OneLogin_Saml2_Response(object):
                     'Could not validate timestamp: not yet valid. Check system clock.',
                     OneLogin_Saml2_ValidationError.ASSERTION_TOO_EARLY
                 )
+            elif not nb_attr:
+                raise OneLogin_Saml2_ValidationError(
+                    'Could not validate timestamp: missing attribute NotBefore of Conditions.',
+                    OneLogin_Saml2_ValidationError.ASSERTION_CONDITIONS_MISSING_NB
+                )
             if nooa_attr and OneLogin_Saml2_Utils.parse_SAML_to_time(nooa_attr) + OneLogin_Saml2_Constants.ALLOWED_CLOCK_DRIFT <= OneLogin_Saml2_Utils.now():
                 raise OneLogin_Saml2_ValidationError(
                     'Could not validate timestamp: expired. Check system clock.',
