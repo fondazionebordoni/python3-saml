@@ -497,6 +497,11 @@ class OneLogin_Saml2_Response(object):
                 issuer_value = OneLogin_Saml2_XML.element_text(message_issuer_nodes[0])
                 if issuer_value:
                     issuers.add(issuer_value)
+                else:
+                    raise OneLogin_Saml2_ValidationError(
+                        'Issuer of the Response is missing.',
+                        OneLogin_Saml2_ValidationError.ISSUER_NOT_FOUND_IN_RESPONSE
+                    )    
             else:
                 raise OneLogin_Saml2_ValidationError(
                     'Issuer of the Response is multiple.',

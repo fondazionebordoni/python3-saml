@@ -125,6 +125,7 @@ class OneLogin_Saml2_ValidationError(Exception):
     ASSERTION_CONDITIONS_MISSING_NOOA = 58
     ASSERTION_MISSING_AUDIENCE = 59
     MISSING_ATTRIBUTE_VALUE = 60
+    ISSUER_NOT_FOUND_IN_RESPONSE = 61
 
     def __init__(self, message, code=0, errors=None):
         """
