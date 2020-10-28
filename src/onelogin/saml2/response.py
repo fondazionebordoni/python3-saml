@@ -233,6 +233,8 @@ class OneLogin_Saml2_Response(object):
                         'There is no AttributeStatement on the Response',
                         OneLogin_Saml2_ValidationError.NO_ATTRIBUTESTATEMENT
                     )
+                # Check AttributeStatement content
+                self.check_attributes()
 
                 encrypted_attributes_nodes = self.__query_assertion('/saml:AttributeStatement/saml:EncryptedAttribute')
                 if encrypted_attributes_nodes:
@@ -682,6 +684,12 @@ class OneLogin_Saml2_Response(object):
                     'Found an Attribute element with duplicated Name',
                     OneLogin_Saml2_ValidationError.DUPLICATED_ATTRIBUTE_NAME_FOUND
                 )
+            attr_value_nodes =  self.__query_assertion('/saml:AttributeStatement/saml:Attribute/saml:AttributeValue')
+            if not attr_value_nodes:
+                raise OneLogin_Saml2_ValidationError(
+                    'Found an Attribute element with no AttributeValue child',
+                    OneLogin_Saml2_ValidationError.MISSING_ATTRIBUTE_VALUE
+                )
 
             values = []
             for attr in attribute_node.iterchildren('{%s}AttributeValue' % OneLogin_Saml2_Constants.NSMAP['saml']):
@@ -1075,3 +1083,6 @@ class OneLogin_Saml2_Response(object):
                 'Missing attribute NameQualifier of NameID in the assertion of the Response',
                 OneLogin_Saml2_ValidationError.NO_NQ_NAMEID
             )
+
+    def check_attributes(self):
+        self.get_attributes()
