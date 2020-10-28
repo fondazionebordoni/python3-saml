@@ -52,16 +52,21 @@ class OneLogin_Saml2_Response(object):
         """
         Verify that Response IssueInstant is greater than Request IssueInstant and less than datetime.now().
         """
+        if "." in response_issue_instant:
+            # Need to allow dates with milliseconds, but datetime only offers formatter code for microseconds
+            response_issue_instant = response_issue_instant[:-1] + "000Z"
+            date_format = "%Y-%m-%dT%H:%M:%S.%f%z"
+        else:
+            date_format = "%Y-%m-%dT%H:%M:%S%z"
         try:
-            response_issue_instant = datetime.strptime(response_issue_instant, "%Y-%m-%dT%H:%M:%S%z").timestamp()
+            response_issue_instant = datetime.strptime(response_issue_instant, date_format).timestamp()
             parsed_response_instant = OneLogin_Saml2_Utils.parse_time_to_SAML(response_issue_instant)
             parsed_request_instant = OneLogin_Saml2_Utils.parse_time_to_SAML(request_instant)
 
             current_timestamp = OneLogin_Saml2_Utils.parse_time_to_SAML(datetime.now(timezone.utc).timestamp())
-
             return parsed_response_instant > parsed_request_instant and parsed_response_instant < current_timestamp
         except Exception as e:
-            print("Exception! %s" % (e))
+            print("check_issue_instant - Exception! %s" % (e))
             return False
 
 
@@ -507,7 +512,6 @@ class OneLogin_Saml2_Response(object):
                     OneLogin_Saml2_ValidationError.NO_FORMAT_IN_ISSUER_IN_ASSERTION
                 )
             elif issuer_format != "urn:oasis:names:tc:SAML:2.0:nameid-format:entity":
-                print("Issuer format value: %s" % (issuer_format))
                 raise OneLogin_Saml2_ValidationError(
                     'Issuer of the Assertion does not have a valid Format attribute.',
                     OneLogin_Saml2_ValidationError.WRONG_FORMAT_IN_ISSUER_IN_ASSERTION
@@ -1050,8 +1054,14 @@ class OneLogin_Saml2_Response(object):
             )
 
         assertion_instant_str = self.__query_assertion('')[0].get('IssueInstant', None)
+        if "." in assertion_instant_str:
+            # Need to allow dates with milliseconds, but datetime only offers formatter code for microseconds
+            assertion_instant_str = assertion_instant_str[:-1] + "000Z"
+            date_format = "%Y-%m-%dT%H:%M:%S.%f%z"
+        else:
+            date_format = "%Y-%m-%dT%H:%M:%S%z"
         try:
-            assertion_instant = datetime.strptime(assertion_instant_str, "%Y-%m-%dT%H:%M:%S%z").timestamp()
+            assertion_instant = datetime.strptime(assertion_instant_str, date_format).timestamp()
             parsed_assertion_instant = OneLogin_Saml2_Utils.parse_time_to_SAML(assertion_instant)
             parsed_request_instant = OneLogin_Saml2_Utils.parse_time_to_SAML(request_instant)
 
@@ -1059,7 +1069,7 @@ class OneLogin_Saml2_Response(object):
 
             return parsed_assertion_instant > parsed_request_instant and parsed_assertion_instant < current_timestamp
         except Exception as e:
-            print("Exception! %s" % (e))
+            print("check_assertion_issue_instant - Exception! %s" % (e))
             return False
 
     def check_nameid(self):
