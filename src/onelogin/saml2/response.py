@@ -206,12 +206,23 @@ class OneLogin_Saml2_Response(object):
                 # Checks that the response has all of the AuthnContexts that we provided in the request.
                 # Only check if failOnAuthnContextMismatch is true and requestedAuthnContext is set to a list.
                 requested_authn_contexts = security['requestedAuthnContext']
+                
+                authn_contexts = [str(ctx) for ctx in self.get_authn_contexts()]
+                missing_contexts = [ctx for ctx in requested_authn_contexts if ctx not in authn_contexts]
+                if missing_contexts:
+                    security['failOnAuthnContextMismatch'] = True
+
                 if security['failOnAuthnContextMismatch'] and requested_authn_contexts and requested_authn_contexts is not True:
                     authn_contexts = self.get_authn_contexts()
                     unmatched_contexts = set(authn_contexts).difference(requested_authn_contexts)
                     if unmatched_contexts:
                         raise OneLogin_Saml2_ValidationError(
                             'The AuthnContext "%s" was not a requested context "%s"' % (', '.join(unmatched_contexts), ', '.join(requested_authn_contexts)),
+                            OneLogin_Saml2_ValidationError.AUTHN_CONTEXT_MISMATCH
+                        )
+                    if missing_contexts:
+                        raise OneLogin_Saml2_ValidationError(
+                            'Missing AuthnContexts: %s' % (', '.join(missing_contexts),),
                             OneLogin_Saml2_ValidationError.AUTHN_CONTEXT_MISMATCH
                         )
 
@@ -454,7 +465,7 @@ class OneLogin_Saml2_Response(object):
         :rtype: list
         """
         authn_context_nodes = self.__query_assertion('/saml:AuthnStatement/saml:AuthnContext/saml:AuthnContextClassRef')
-        return [OneLogin_Saml2_XML.element_text(node) for node in authn_context_nodes]
+        return list(filter(None, [OneLogin_Saml2_XML.element_text(node) for node in authn_context_nodes]))
 
     def get_in_response_to(self):
         """
