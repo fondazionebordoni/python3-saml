@@ -122,7 +122,6 @@ class OneLogin_Saml2_Response(object):
 
             # Check that ID attribute within Assertion is not missing
             assertion_id = self.get_assertion_id()
-            print("AssertionID = %s" % (assertion_id))
             if not assertion_id:
                 raise OneLogin_Saml2_ValidationError(
                     'SAML Assertion ID attribute is missing',
@@ -1077,7 +1076,7 @@ class OneLogin_Saml2_Response(object):
             )
 
         assertion_instant_str = self.__query_assertion('')[0].get('IssueInstant', None)
-        if "." in assertion_instant_str:
+        if assertion_instant_str and "." in assertion_instant_str:
             # Need to allow dates with milliseconds, but datetime only offers formatter code for microseconds
             assertion_instant_str = assertion_instant_str[:-1] + "000Z"
             date_format = "%Y-%m-%dT%H:%M:%S.%f%z"
