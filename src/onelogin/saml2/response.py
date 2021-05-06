@@ -511,7 +511,7 @@ class OneLogin_Saml2_Response(object):
                         OneLogin_Saml2_ValidationError.ISSUER_NOT_FOUND_IN_RESPONSE
                     )
                 response_issuer_format = message_issuer_nodes[0].get("Format", None)
-                if response_issuer_format != "urn:oasis:names:tc:SAML:2.0:nameid-format:entity":
+                if response_issuer_format is not None and response_issuer_format != "urn:oasis:names:tc:SAML:2.0:nameid-format:entity":
                     raise OneLogin_Saml2_ValidationError(
                         'Issuer of the Response does not have a valid Format attribute.',
                         OneLogin_Saml2_ValidationError.WRONG_FORMAT_IN_ISSUER_IN_RESPONSE
