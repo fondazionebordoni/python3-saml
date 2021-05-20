@@ -428,7 +428,7 @@ class OneLogin_Saml2_Response(object):
         if code and code != OneLogin_Saml2_Constants.STATUS_SUCCESS:
             splited_code = code.split(':')
             printable_code = splited_code.pop()
-            status_exception_msg = 'The status code of the Response was not Success, was %s' % printable_code
+            status_exception_msg = 'Il status code è diverso da "Success": %s' % printable_code
             status_msg = status.get('msg', None)
             if status_msg:
                 # Check for SPID codes
