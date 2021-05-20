@@ -431,7 +431,22 @@ class OneLogin_Saml2_Response(object):
             status_exception_msg = 'The status code of the Response was not Success, was %s' % printable_code
             status_msg = status.get('msg', None)
             if status_msg:
-                status_exception_msg += ' -> ' + status_msg
+                # Check for SPID codes
+                if 'ErrorCode nr' in status_msg:
+                    if 'ErrorCode nr19' in status_msg:
+                        status_exception_msg = 'Autenticazione fallita per ripetuta sottomissione di credenziali errate (superato numero  tentativi secondo le policy adottate)'
+                    elif 'ErrorCode nr20' in status_msg:
+                        status_exception_msg = 'Utente privo di credenziali compatibili con il livello richiesto dal fornitore del servizio'
+                    elif 'ErrorCode nr21' in status_msg:
+                        status_exception_msg = 'Timeout durante l’autenticazione utente'
+                    elif 'ErrorCode nr22' in status_msg:
+                        status_exception_msg = 'Utente nega il consenso all’invio di dati al SP in caso di sessione vigente'
+                    elif 'ErrorCode nr23' in status_msg:
+                        status_exception_msg = 'Utente con identità sospesa/revocata o con credenziali bloccate'
+                    elif 'ErrorCode nr25' in status_msg:
+                        status_exception_msg = 'Processo di autenticazione annullato dall’utente'
+                else:
+                    status_exception_msg += ' -> ' + status_msg
             raise OneLogin_Saml2_ValidationError(
                 status_exception_msg,
                 OneLogin_Saml2_ValidationError.STATUS_CODE_IS_NOT_SUCCESS

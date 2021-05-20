@@ -120,11 +120,11 @@ class OneLogin_Saml2_Auth(object):
                 self.__last_assertion_not_on_or_after = response.get_assertion_not_on_or_after()
 
             else:
-                self.__errors.append('invalid_response')
+                self.__errors.append('Risposta errata')
                 self.__error_reason = response.get_error()
 
         else:
-            self.__errors.append('invalid_binding')
+            self.__errors.append('Binding errato')
             raise OneLogin_Saml2_Error(
                 'SAML Response not found, Only supported HTTP_POST Binding',
                 OneLogin_Saml2_Error.SAML_RESPONSE_NOT_FOUND
