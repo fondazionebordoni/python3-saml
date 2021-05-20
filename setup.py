@@ -9,7 +9,7 @@ from setuptools import setup
 
 setup(
     name="python3-saml",
-    version="2.0.1",
+    version="2.0.3",
     description="FUB Python Toolkit. Add SPID support to your Python software using this library",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
